@@ -4,6 +4,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const mongoose = require("mongoose");
 const authRoutes = require("./routes/auth-routes/index");
+const mediaRoutes = require("./routes/instructor-routes/media-routes");
 
 // Initialize environment variables
 dotenv.config();
@@ -34,8 +35,11 @@ mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("mongodb is connected"))
   .catch((e) => console.log(e));
+
+
  //routes configuration
   app.use("/auth", authRoutes);
+  app.use("/media", mediaRoutes);
 
 app.use((err, req, res, next) => {
   console.log(err.stack);
