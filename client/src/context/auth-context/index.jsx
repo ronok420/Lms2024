@@ -235,6 +235,7 @@
 
 
 
+import { Skeleton } from "@/components/ui/skeleton";
 import { initialSignInFormData, initialSignUpFormData } from "@/config";
 import { loginService, registerService, checkAuthService } from "@/services";
 import { createContext, useEffect, useState } from "react";
@@ -332,7 +333,10 @@ export default function AuthProvider({ children }) {
         auth
       }}
     >
-      {children}
+      {
+        loading ? <Skeleton /> :  children
+      }
+     
     </AuthContext.Provider>
   );
 }
