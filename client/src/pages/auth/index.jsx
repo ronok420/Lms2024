@@ -26,7 +26,7 @@ function AuthPage() {
   function handleTabChange(value) {
     setActiveTab(value);
   }
-  console.log(signInFormData);
+  // console.log(signInFormData);
   function checkIfSignInFormIsValid() {
     return (
       signInFormData &&
