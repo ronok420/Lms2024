@@ -300,10 +300,14 @@ export default function AuthProvider({ children }) {
       }
     } catch (error) {
       console.log(error);
-      setAuth({
-        authenticate: false,
-        user: null,
-      });
+      if(!error?.response?.data?.success){
+        setAuth({
+          authenticate: false,
+          user: null,
+        });
+
+      }
+      
     } finally {
       setLoading(false);
     }
@@ -330,7 +334,8 @@ export default function AuthProvider({ children }) {
         setSignUpFormData,
         handleRegisterUser,
         handleLoginUser,
-        auth
+        auth,
+        resetCredentials
       }}
     >
       {
