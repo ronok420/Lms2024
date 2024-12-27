@@ -16,7 +16,6 @@ function App() {
   const { auth } = useContext(AuthContext);
 
   return (
-    
     <Routes>
       {/* <Route path="/" element={<Navigate to="/auth/home" replace />} /> */}
       <Route
@@ -45,8 +44,22 @@ function App() {
           />
         }
       />
-       <Route
-        path="/"  element={ <RouteGuard element={<StudentViewCommonLayout />}
+      <Route
+        path="/instructor/edit-course/:courseId"
+        element={ <RouteGuard  element={<AddNewCoursePage />}
+            authenticated={auth?.authenticate}
+            user={auth?.user}
+          />
+        }
+      />
+      
+
+      {/* sudent dashboardpage  */}
+      <Route
+        path="/"
+        element={
+          <RouteGuard
+            element={<StudentViewCommonLayout />}
             authenticated={auth?.authenticate}
             user={auth?.user}
           />
@@ -54,31 +67,10 @@ function App() {
       >
         <Route path="" element={<StudentHomePage />} />
         <Route path="home" element={<StudentHomePage />} />
-        
-        
-        
-      
       </Route>
       <Route path="*" element={<Navigate to="/auth" />} />
     </Routes>
-  //   <Routes>
-  //   <Route
-  //     path="/auth"
-  //     element={<RouteGuard element={<AuthPage />} />}
-  //   />
-  //   <Route
-  //     path="/instructor"
-  //     element={<RouteGuard element={<InstructorDashboardpage />} />}
-  //   />
-  //   <Route
-  //     path="/"
-  //     element={<RouteGuard element={<StudentViewCommonLayout />} />}
-  //   >
-  //     <Route path="" element={<StudentHomePage />} />
-  //     <Route path="home" element={<StudentHomePage />} />
-  //   </Route>
-  //   <Route path="*" element={<Navigate to="/auth" />} />
-  // </Routes>
+   
   );
 }
 

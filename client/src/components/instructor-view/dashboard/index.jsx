@@ -1,6 +1,6 @@
 import React from 'react';
 
-const InstructorDashboard = () => {
+const InstructorDashboard = ({listOfCourses}) => {
     return (
         <div>
             <h1>Instructor  dashboard  page </h1>

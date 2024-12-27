@@ -4,9 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import VideoPlayer from "@/components/video-player";
 import { courseCurriculumInitialFormData } from "@/config";
 import { InstructorContext } from "@/context/instructor-context";
-import { mediaUploadService } from "@/services";
+import { mediaDeleteService, mediaUploadService } from "@/services";
 import { useContext } from "react";
 
 const CourseCurriculum = () => {
@@ -79,13 +80,59 @@ const CourseCurriculum = () => {
     }
   }
 
+  async function handleReplaceVideo(currentIndex) {
+    let cpyCourseCurriculumFormData = [...courseCurriculumFormData];
+    const getCurrentVideoPublicId =
+      cpyCourseCurriculumFormData[currentIndex].public_id;
+
+    const deleteCurrentMediaResponse = await mediaDeleteService(
+      getCurrentVideoPublicId
+    );
+
+    if (deleteCurrentMediaResponse?.success) {
+      cpyCourseCurriculumFormData[currentIndex] = {
+        ...cpyCourseCurriculumFormData[currentIndex],
+        videoUrl: "",
+        public_id: "",
+      };
+
+      setCourseCurriculumFormData(cpyCourseCurriculumFormData);
+    }
+  }
+
+  async function handleDeleteLecture(currentIndex) {
+    let cpyCourseCurriculumFormData = [...courseCurriculumFormData];
+    const getCurrentSelectedVideoPublicId =
+      cpyCourseCurriculumFormData[currentIndex].public_id;
+
+    const response = await mediaDeleteService(getCurrentSelectedVideoPublicId);
+
+    if (response?.success) {
+      cpyCourseCurriculumFormData = cpyCourseCurriculumFormData.filter(
+        (_, index) => index !== currentIndex
+      );
+
+      setCourseCurriculumFormData(cpyCourseCurriculumFormData);
+    }
+  }
+
+  function isCourseCurriculumFormDataValid() {
+    return courseCurriculumFormData.every((item) => {
+      return (
+        item &&
+        typeof item === "object" &&
+        item.title.trim() !== "" &&
+        item.videoUrl.trim() !== ""
+      );
+    });
+  }
   return (
     <Card>
       <CardHeader>
         <CardTitle>Course Curricululm</CardTitle>
       </CardHeader>
       <CardContent>
-        <Button onClick={handleNewLecture}> Add Lecture</Button>
+        <Button  disabled={!isCourseCurriculumFormDataValid()} onClick={handleNewLecture}> Add Lecture</Button>
         {
             mediaUploadProgress ? 
             <MediaProgressbar isMediaUploading={mediaUploadProgress}
@@ -117,13 +164,42 @@ const CourseCurriculum = () => {
                   </Label>
                 </div>
               </div>
-              <div className="mt-6 ">
+              {/* <div className="mt-6 ">
                 <Input
                   type="file"
                   accept="video/*"
                   className="mb-4"
                   onChange={(event) => handleSingleLectureUpload(event, index)}
                 />
+              </div> */}
+               <div className="mt-6">
+                {courseCurriculumFormData[index]?.videoUrl ? (
+                  <div className="flex gap-3">
+                    <VideoPlayer
+                      url={courseCurriculumFormData[index]?.videoUrl}
+                      width="450px"
+                      height="240px"
+                    />
+                    <Button onClick={() => handleReplaceVideo(index)}>
+                      Replace Video
+                    </Button>
+                    <Button
+                      onClick={() => handleDeleteLecture(index)}
+                      className="bg-red-900"
+                    >
+                      Delete Lecture
+                    </Button>
+                  </div>
+                ) : (
+                  <Input
+                    type="file"
+                    accept="video/*"
+                    onChange={(event) =>
+                      handleSingleLectureUpload(event, index)
+                    }
+                    className="mb-4"
+                  />
+                )}
               </div>
             </div>
           ))}
