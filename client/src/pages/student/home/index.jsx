@@ -130,17 +130,14 @@ import { useContext } from "react";
 
 
 const StudentHomePage = () => {
-const {resetCredentials} = useContext(AuthContext);
+
   
-  function handleLogout() {
-    resetCredentials();
-    sessionStorage.clear();
-  }
+  
 
   return (
     <div>
        <h2>student home page</h2>
-       <Button onClick={handleLogout}>Log out</Button>
+      
       
     </div>
   );

@@ -7,8 +7,9 @@ import { Switch } from "@/components/ui/switch";
 import VideoPlayer from "@/components/video-player";
 import { courseCurriculumInitialFormData } from "@/config";
 import { InstructorContext } from "@/context/instructor-context";
-import { mediaDeleteService, mediaUploadService } from "@/services";
-import { useContext } from "react";
+import { mediaBulkUploadService, mediaDeleteService, mediaUploadService } from "@/services";
+import { Upload } from "lucide-react";
+import { useContext, useRef } from "react";
 
 const CourseCurriculum = () => {
   const {
@@ -19,6 +20,7 @@ const CourseCurriculum = () => {
     mediaUploadProgressPercentage, 
     setMediaUploadProgressPercentage
   } = useContext(InstructorContext);
+  const bulkUploadInputRef = useRef(null);
 
   function handleNewLecture() {
     setCourseCurriculumFormData([
@@ -126,10 +128,89 @@ const CourseCurriculum = () => {
       );
     });
   }
+
+  function handleOpenBulkUploadDialog() {
+    bulkUploadInputRef.current?.click();
+  }
+
+  function areAllCourseCurriculumFormDataObjectsEmpty(arr) {
+    return arr.every((obj) => {
+      return Object.entries(obj).every(([key, value]) => {
+        if (typeof value === "boolean") {
+          return true;
+        }
+        return value === "";
+      });
+    });
+  }
+
+  async function handleMediaBulkUpload(event) {
+    const selectedFiles = Array.from(event.target.files);
+    const bulkFormData = new FormData();
+
+    selectedFiles.forEach((fileItem) => bulkFormData.append("files", fileItem));
+
+    try {
+      setMediaUploadProgress(true);
+      const response = await mediaBulkUploadService(
+        bulkFormData,
+        setMediaUploadProgressPercentage
+      );
+
+      console.log(response, "bulk");
+      if (response?.success) {
+        let cpyCourseCurriculumFormdata =
+          areAllCourseCurriculumFormDataObjectsEmpty(courseCurriculumFormData)
+            ? []
+            : [...courseCurriculumFormData];
+
+        cpyCourseCurriculumFormdata = [
+          ...cpyCourseCurriculumFormdata,
+          ...response.data.map((item, index) => ({
+            videoUrl: item?.url,
+            public_id: item?.public_id,
+            title: `Lecture ${
+              cpyCourseCurriculumFormdata.length + (index + 1)
+            }`,
+            freePreview: false,
+          })),
+        ];
+        setCourseCurriculumFormData(cpyCourseCurriculumFormdata);
+        setMediaUploadProgress(false);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+
+  
+ 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row justify-between">
         <CardTitle>Course Curricululm</CardTitle>
+        <div>
+          <Input
+            type="file"
+            ref={bulkUploadInputRef}
+            accept="video/*"
+            multiple
+            className="hidden"
+            id="bulk-media-upload"
+            onChange={handleMediaBulkUpload}
+          />
+          <Button
+            as="label"
+            htmlFor="bulk-media-upload"
+            variant="outline"
+            className="cursor-pointer"
+            onClick={handleOpenBulkUploadDialog}
+          >
+            <Upload className="w-4 h-5 mr-2" />
+            Bulk Upload
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <Button  disabled={!isCourseCurriculumFormDataValid()} onClick={handleNewLecture}> Add Lecture</Button>
