@@ -11,6 +11,7 @@ import InstructorDashboardpage from "./pages/instructor";
 import StudentHomePage from "./pages/student/home";
 import StudentViewCommonLayout from "./components/student-view/common-layout";
 import AddNewCoursePage from "./pages/instructor/add-new-course";
+import StudentViewCoursesPage from "./pages/courses";
 
 function App() {
   const { auth } = useContext(AuthContext);
@@ -67,6 +68,7 @@ function App() {
       >
         <Route path="" element={<StudentHomePage />} />
         <Route path="home" element={<StudentHomePage />} />
+        <Route path="courses" element={<StudentViewCoursesPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/auth" />} />
     </Routes>
