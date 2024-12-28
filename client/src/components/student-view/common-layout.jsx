@@ -5,7 +5,7 @@ import StudentViewCommonHeader from './header';
 const StudentViewCommonLayout = () => {
     return (
         <div>
-            <h1>Common layout</h1>
+         
             <StudentViewCommonHeader/>
             <Outlet/>
             
