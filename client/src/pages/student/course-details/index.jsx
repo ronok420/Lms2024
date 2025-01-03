@@ -5,12 +5,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import VideoPlayer from "@/components/video-player";
 import { AuthContext } from "@/context/auth-context";
 import { StudentContext } from "@/context/student-context";
-import { fetchStudentViewCourseDetailsService } from "@/services";
+import { createPaymentService, fetchStudentViewCourseDetailsService } from "@/services";
 import { Label } from "@radix-ui/react-dropdown-menu";
 import { CheckCircle, Globe, Lock, PlayCircle } from "lucide-react";
 import { Input } from "postcss";
 import { useContext, useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
 
 const StudentViewCourseDetailsPage = () => {
   const {
@@ -27,22 +27,26 @@ const StudentViewCourseDetailsPage = () => {
     useState(null);
   const [showFreePreviewDialog, setShowFreePreviewDialog] = useState(false);
   const [approvalUrl, setApprovalUrl] = useState("");
+  // const [coursePurchaseId,setCoursePurchaseId]=  useState(null);
   const navigate = useNavigate();
   const { id } = useParams();
   const location = useLocation();
 
   async function fetchStudentViewCourseDetails() {
     const response = await fetchStudentViewCourseDetailsService(
-      currentCourseDetailsId
+      currentCourseDetailsId,
+      // auth?.user?._id
     );
     
     if (response?.success) {
       setStudentViewCourseDetails(response?.data);
+      // setCoursePurchaseId(response?.coursePurchaseId);//last added 
       setLoadingState(false);
       console.log("studenviewCOursedetails",studentViewCourseDetails);
       
     } else {
       setStudentViewCourseDetails(null);
+      // setCoursePurchaseId(false);//last added
       setLoadingState(false);
     }
   }
@@ -52,7 +56,61 @@ const StudentViewCourseDetailsPage = () => {
     setDisplayCurrentVideoFreePreview(getCurrentVideoInfo?.videoUrl);
   }
 
+  async function handleCreatePayment() {
+    const paymentPayload = {
+      userId: auth?.user?._id,
+      userName: auth?.user?.userName,
+      userEmail: auth?.user?.userEmail,
+      orderStatus: "pending",
+      paymentMethod: "SSLCommerz",
+      paymentStatus: "initiated",
+      orderDate: new Date(),
+      paymentId: "",
+      // ssl_id: "",
+      instructorId: studentViewCourseDetails?.instructorId,
+      instructorName: studentViewCourseDetails?.instructorName,
+      courseImage: studentViewCourseDetails?.image,
+      courseTitle: studentViewCourseDetails?.title,
+      courseId: studentViewCourseDetails?._id,
+      coursePricing: studentViewCourseDetails?.pricing,
+      ship_name: auth?.user?.userName,
+    };
 
+    console.log(paymentPayload, "paymentPayload");
+    const response = await createPaymentService(paymentPayload);
+
+    if (response.success) {
+      console.log("response  approval",response);
+      
+      sessionStorage.setItem(
+        "currentOrderId",
+        JSON.stringify(response?.data?.orderId)
+      );
+      setApprovalUrl(response?.data?.approveUrl);
+    }
+
+    sessionStorage.setItem(
+      "currentOrderId",
+      JSON.stringify(response?.data?.orderId)
+    );
+   
+     
+    
+   
+
+    // Save a redirect flag and timestamp
+    // const successRedirectData = {
+    //   redirectUrl: "http://localhost:5173/success",
+    //   timestamp: Date.now(),
+    // };
+    // sessionStorage.setItem("successRedirect", JSON.stringify(successRedirectData));
+  }
+
+
+
+
+
+  //useEffect hooks   all 
   useEffect(() => {
     if (displayCurrentVideoFreePreview !== null) setShowFreePreviewDialog(true);
   }, [displayCurrentVideoFreePreview]);
@@ -67,11 +125,20 @@ const StudentViewCourseDetailsPage = () => {
   useEffect(()=>{
     if(!location.pathname.includes('/course/details')){
       setStudentViewCourseDetails(null);
+    setCoursePurchaseId(null);
       setCurrentCourseDetailsId(null);
     }
   },[location.pathname])
 
   if (loadingState) return <Skeleton />;
+
+  // if(coursePurchaseId !== null){//last  added 
+  //   return <Navigate to={`/course-progress/${coursePurchaseId}`} />
+  // }
+  if(approvalUrl !==''){
+    window.location.href=`http://localhost:5173/payment-return`;
+  }
+ 
 
   const getIndexOfFreePreviewUrl =
   studentViewCourseDetails !== null
@@ -167,7 +234,7 @@ const freePreviewVideos = studentViewCourseDetails !== null
 
              <aside className="w-full md:w-[500px]">
                  <Card className="sticky top-4">
-                   <CardContent className="p-6">
+                   <CardContent  className="p-6">
                       <div className="aspect-video mb-4 rounded-lg flex items-center justify-center">
                         <VideoPlayer
                           url={
@@ -188,7 +255,8 @@ const freePreviewVideos = studentViewCourseDetails !== null
                         </span>
                       </div>
                       <Button
-                      //  onClick={handleCreatePayment} 
+                       onClick={handleCreatePayment} 
+                      
                       className="w-full">
                         Buy Now
                       </Button>
@@ -227,6 +295,8 @@ const freePreviewVideos = studentViewCourseDetails !== null
               </aside> */}
 
 
+     
+     
       </div>
 
 

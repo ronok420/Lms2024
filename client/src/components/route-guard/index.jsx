@@ -9,6 +9,8 @@ function RouteGuard({ authenticated, user, element }) {
   const { loading } = useContext(AuthContext);
 
   console.log(authenticated, user, "useruser");
+  // Allow public access to the /success route
+ 
 
   if (!authenticated && !location.pathname.includes("/auth")) {
     return <Navigate to="/auth" />;

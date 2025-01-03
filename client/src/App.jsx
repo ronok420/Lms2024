@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+// import reactLogo from "./assets/react.svg";
+// import viteLogo from "/vite.svg";
 import "./App.css";
 import { Button } from "./components/ui/button";
 import { Navigate, Route, Routes } from "react-router-dom";
@@ -13,6 +13,9 @@ import StudentViewCommonLayout from "./components/student-view/common-layout";
 import AddNewCoursePage from "./pages/instructor/add-new-course";
 import StudentViewCoursesPage from "./pages/courses";
 import StudentViewCourseDetailsPage from "./pages/student/course-details";
+import PaymentReturnPage from "./pages/student/payment-return";
+import StudentCoursesPage from "./pages/student/student-courses";
+import StudentViewCourseProgressPage from "./pages/student/course-progress";
 
 function App() {
   const { auth } = useContext(AuthContext);
@@ -71,7 +74,13 @@ function App() {
         <Route path="home" element={<StudentHomePage />} />
         <Route path="courses" element={<StudentViewCoursesPage />} />
         <Route path="course/details/:id" element={<StudentViewCourseDetailsPage />} />
+        <Route path="payment-return" element={<PaymentReturnPage />} />
+        <Route path="student-courses" element={<StudentCoursesPage />} />
+        <Route path="student-courses" element={<StudentCoursesPage />} />
+        <Route path="course-progress/:id" element={<StudentViewCourseProgressPage />} />
+        
       </Route>
+     
       <Route path="*" element={<Navigate to="/auth" />} />
     </Routes>
    
