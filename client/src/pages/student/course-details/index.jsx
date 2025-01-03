@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import VideoPlayer from "@/components/video-player";
 import { AuthContext } from "@/context/auth-context";
 import { StudentContext } from "@/context/student-context";
-import { createPaymentService, fetchStudentViewCourseDetailsService } from "@/services";
+import { checkCoursePurchaseInfoService, createPaymentService, fetchStudentViewCourseDetailsService } from "@/services";
 import { Label } from "@radix-ui/react-dropdown-menu";
 import { CheckCircle, Globe, Lock, PlayCircle } from "lucide-react";
 import { Input } from "postcss";
@@ -33,6 +33,22 @@ const StudentViewCourseDetailsPage = () => {
   const location = useLocation();
 
   async function fetchStudentViewCourseDetails() {
+    //can't  access  menually  course details  page when it is in  course progress page
+    const checkCoursePurchaseInfoResponse =
+      await checkCoursePurchaseInfoService(
+        currentCourseDetailsId,
+        auth?.user._id
+      );
+
+    if (
+      checkCoursePurchaseInfoResponse?.success &&
+      checkCoursePurchaseInfoResponse?.data
+    ) {
+      navigate(`/course-progress/${currentCourseDetailsId}`);
+      return;
+    }
+
+
     const response = await fetchStudentViewCourseDetailsService(
       currentCourseDetailsId,
       // auth?.user?._id
@@ -125,7 +141,7 @@ const StudentViewCourseDetailsPage = () => {
   useEffect(()=>{
     if(!location.pathname.includes('/course/details')){
       setStudentViewCourseDetails(null);
-    setCoursePurchaseId(null);
+    // setCoursePurchaseId(null);
       setCurrentCourseDetailsId(null);
     }
   },[location.pathname])
